@@ -6,6 +6,11 @@ class GameMap:
         self.height=height
         self.tiles=self.init_tiles()
 
+    def is_blocked(self, x, y):
+        if self.tiles[x][y].block_movement:
+            return True
+        return False
+
     def init_tiles(self):
         # False = doesn't block (floor n stuff)
         tiles=[[Tile(False) for y in range(self.height)] for x in range(self.width)]
