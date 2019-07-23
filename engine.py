@@ -1,11 +1,14 @@
 import tcod as libtcod
 from input_handlers import handle_keys
+from entity import Entity
+from render_functions import render_all, clear_all
 
 def main():
     screen_width=80
     screen_height=50
-    pos_x=int((screen_width+1)/2)
-    pos_y=int((screen_height+1)/2)
+    player=Entity(int((screen_width+1)/2), int((screen_height+1)/2), '@', libtcod.yellow)
+    man=Entity(int((screen_width+1)/2), int((screen_height+1)/2)-2, 'm', libtcod.white)
+    entities=[player, man]
 
     libtcod.console_init_root(screen_width, screen_height, 'Sneks: Multi-Leg Drifting', False)
     con=libtcod.console_new(screen_width, screen_height)
@@ -14,11 +17,10 @@ def main():
 
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
-        libtcod.console_set_default_foreground(con, libtcod.white)
-        libtcod.console_put_char(con, pos_x, pos_y, '@', libtcod.BKGND_NONE)
-        libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
+
+        render_all(con, entities, screen_width, screen_height)
         libtcod.console_flush()
-        libtcod.console_put_char(con, pos_x, pos_y, ' ', libtcod.BKGND_NONE)
+        clear_all(con, entities)
 
         action=handle_keys(key)
         move=action.get('move')
@@ -27,8 +29,7 @@ def main():
 
         if move:
             dx, dy=move
-            pos_x+=dx
-            pos_y+=dy
+            player.move(dx, dy)
         
         if exit:
             return True
