@@ -29,22 +29,23 @@ class GameMap:
             else:
                 self.carve_room(new_room)
             
-            (new_x, new_y)=new_room.centre()
-            if num_rooms==0:
-                player.x=new_x
-                player.y=new_y
-            else:
-                # tunnel to SPECIFICALLY THE PREVIOUS ROOM, imitating the repetitive nature of bands
-                (prev_x, prev_y)=rooms[num_rooms-1].centre()
-                if randint(0, 1)==0:
-                    self.carve_tunnel_x(prev_x, new_x, prev_y)
-                    self.carve_tunnel_y(prev_y, new_y, new_x)
+                (new_x, new_y)=new_room.centre()
+                if num_rooms==0:
+                    player.x=new_x
+                    player.y=new_y
                 else:
-                    self.carve_tunnel_y(prev_y, new_y, prev_x)
-                    self.carve_tunnel_x(prev_x, new_x, new_y)
-            self.spawn_entities(new_room, entities, max_monsters_per_room)
-            rooms.append(new_room)
-            num_rooms+=1
+                    # tunnel to SPECIFICALLY THE PREVIOUS ROOM, imitating the chaotic nature of dcss
+                    (prev_x, prev_y)=rooms[num_rooms-1].centre()
+                    if randint(0, 1)==0:
+                        self.carve_tunnel_x(prev_x, new_x, prev_y)
+                        self.carve_tunnel_y(prev_y, new_y, new_x)
+                    else:
+                        self.carve_tunnel_y(prev_y, new_y, prev_x)
+                        self.carve_tunnel_x(prev_x, new_x, new_y)
+            
+                self.spawn_entities(new_room, entities, max_monsters_per_room)
+                rooms.append(new_room)
+                num_rooms+=1
     def carve_room(self, room):
         for y in range(room.y1+1, room.y2):
             for x in range (room.x1+1, room.x2):
@@ -68,9 +69,10 @@ class GameMap:
         for _ in range(number_of_monsters):
             x=randint(room.x1+1, room.x2-1)
             y=randint(room.y1+1, room.y2-1)
-        if not any([entity for entity in entities if entity.x==x and entity.y==y]):
-            if randint(0, 100)<90: # ninety percent to spawn a white european
-                monster=Entity(x, y, 'm', libtcod.white)
-            else: # ten percent to spawn a green orck
-                monster=Entity(x, y, 'o', libtcod.desaturated_green)
-            entities.append(monster)
+            if not any([entity for entity in entities if entity.x==x and entity.y==y]):
+                # ninety percent to spawn a white european, ten percent to spawn a green orck
+                if randint(0, 100)<90:
+                    monster=Entity(x, y, 'm', libtcod.white, 'Man', block_movement=True)
+                else:
+                    monster=Entity(x, y, 'o', libtcod.desaturated_green, 'Orck', block_movement=True)
+                entities.append(monster)

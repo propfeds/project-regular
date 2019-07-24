@@ -1,9 +1,11 @@
 import tcod as libtcod
 from input_handlers import handle_keys
-from entity import Entity
+from game_states import GameStates
+from entity import Entity, get_blocking_entities
 from render_functions import render_all, clear_all
 from map_objects.game_map import GameMap
 from fov_functions import init_fov, recompute_fov
+from random import randint
 
 def main():
     screen_width=80
@@ -11,7 +13,7 @@ def main():
     map_width=80
     map_height=45
     room_max_size=8
-    room_min_size=5
+    room_min_size=6
     max_rooms=40
     max_monsters_per_room=3
     fov_algorithm=0
@@ -25,7 +27,7 @@ def main():
         'light_ground': libtcod.Color(138, 111, 48)
     }
 
-    player=Entity(0, 0, '@', libtcod.brass)
+    player=Entity(0, 0, '@', libtcod.brass, '(Player)Ratielle Snailface the Snek Charmer', block_movement=True)
     entities=[player]
 
     libtcod.console_init_root(screen_width, screen_height, 'Sneks: The Circles of Angband', False)
@@ -34,8 +36,10 @@ def main():
     game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room)
     fov_recompute=True
     fov_map=init_fov(game_map)
+
     key=libtcod.Key()
     mouse=libtcod.Mouse()
+    game_state=GameStates.PLAYER_TURN
 
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
@@ -51,17 +55,29 @@ def main():
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
 
-        if move:
+        if move and game_state==GameStates.PLAYER_TURN:
             dx, dy=move
             if not game_map.is_blocked(player.x+dx, player.y+dy):
-                player.move(dx, dy)
-                fov_recompute=True
+                target=get_blocking_entities(entities, player.x+dx, player.y+dy)
+                if target:
+                    print('You chop chop the '+target.name+'\'s chin because you think they\'re Kripto and you hate Kripto!')
+                else:
+                    player.move(dx, dy)
+                    fov_recompute=True
+                game_state=GameStates.ENEMY_TURN
         
         if exit:
             return True
 
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
+
+        if game_state==GameStates.ENEMY_TURN:
+            for entity in entities:
+                if entity!=player:
+                    if randint(0, 100)>95:
+                        print('The '+entity.name+' laughs hysterically at you!')
+            game_state=GameStates.PLAYER_TURN
 
 if __name__ == '__main__':
     main()
