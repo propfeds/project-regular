@@ -1,3 +1,4 @@
+from random import randint
 from map_objects.tile import Tile
 from map_objects.rect import Rect
 
@@ -16,6 +17,38 @@ class GameMap:
         # True: walls!
         tiles=[[Tile(True) for y in range(self.height)] for x in range(self.width)]
         return tiles
+
+    def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player):
+        rooms=[]
+        num_rooms=0
+        for r in range(max_rooms):
+            w= randint(room_min_size, room_max_size)
+            h= randint(room_min_size, room_max_size)
+            x= randint(0, map_width-w-1)
+            y= randint(0, map_height-h-1)
+            new_room=Rect(x, y, w, h)
+            for ref_room in rooms:
+                if new_room.intersect(ref_room):
+                    break
+            # weird python syntax stuff
+            else:
+                self.carve_room(new_room)
+            
+            (new_x, new_y)=new_room.centre()
+            if num_rooms==0:
+                player.x=new_x
+                player.y=new_y
+            else:
+                # tunnel to SPECIFICALLY THE PREVIOUS ROOM, imitating the repetitive nature of bands
+                (prev_x, prev_y)=rooms[num_rooms-1].centre()
+                if randint(0, 1)==0:
+                    self.carve_tunnel_x(prev_x, new_x, prev_y)
+                    self.carve_tunnel_y(prev_y, new_y, new_x)
+                else:
+                    self.carve_tunnel_y(prev_y, new_y, prev_x)
+                    self.carve_tunnel_x(prev_x, new_x, new_y)
+            rooms.append(new_room)
+            num_rooms+=1
 
     def carve_room(self, room):
         for y in range(room.y1+1, room.y2):

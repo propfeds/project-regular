@@ -9,6 +9,9 @@ def main():
     screen_height=50
     map_width=80
     map_height=45
+    room_max_size=8
+    room_min_size=5
+    max_rooms=40
     colours={
         'dark_wall': libtcod.Color(75, 105, 47),
         'dark_ground': libtcod.Color(106, 190, 48)
@@ -21,6 +24,7 @@ def main():
     libtcod.console_init_root(screen_width, screen_height, 'Sneks: Multi-Leg Drifting', False)
     con=libtcod.console_new(screen_width, screen_height)
     game_map=GameMap(map_width, map_height)
+    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player)
     key=libtcod.Key()
     mouse=libtcod.Mouse()
 
