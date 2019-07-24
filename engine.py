@@ -10,8 +10,8 @@ def main():
     map_width=80
     map_height=45
     colours={
-        'dark_wall': libtcod.Color(0, 0, 100),
-        'dark_ground': libtcod.Color(50, 50, 150)
+        'dark_wall': libtcod.Color(75, 105, 47),
+        'dark_ground': libtcod.Color(106, 190, 48)
     }
 
     player=Entity(int((screen_width+1)/2), int((screen_height+1)/2), '@', libtcod.yellow)
