@@ -4,5 +4,6 @@ class Tile:
         if block_sight is None:
             block_sight=block_movement
         self.block_sight=block_sight
+        self.explored=False
         # Independent, since I may wanna add stuff like glass walls
 
