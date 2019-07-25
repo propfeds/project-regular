@@ -2,11 +2,12 @@ import tcod as libtcod
 from input_handlers import handle_keys
 from game_states import GameStates
 from entity import Entity, get_blocking_entities
-from render_functions import render_all, clear_all
+from render_functions import render_all, clear_all, RenderOrder
 from map_objects.game_map import GameMap
 from fov_functions import init_fov, recompute_fov
 from random import randint
 from components.combatant import Combatant
+from death_functions import kill_monster, kill_player
 
 def main():
     screen_width=80
@@ -28,7 +29,7 @@ def main():
         'light_ground': libtcod.Color(138, 111, 48)
     }
 
-    player=Entity(0, 0, '@', libtcod.brass, '(Player)Ratiel Snailface the Snek Charmer', block_movement=True, combatant=Combatant(health=24, stamina=60, attack=6, ac=2))
+    player=Entity(0, 0, '@', libtcod.brass, '(Player) Ratiel Snailface the Snek Charmer', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=6, ac=2))
     entities=[player]
 
     libtcod.console_init_root(screen_width, screen_height, 'Sneks: The Circles of Angband', False)
@@ -46,7 +47,7 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
-        render_all(con, entities, game_map, fov_map, fov_recompute, screen_width, screen_height, colours)
+        render_all(con, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, colours)
         fov_recompute=False
         libtcod.console_flush()
         clear_all(con, entities)
@@ -56,12 +57,13 @@ def main():
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
 
+        player_turn_results=[]
         if move and game_state==GameStates.PLAYER_TURN:
             dx, dy=move
             if not game_map.is_blocked(player.x+dx, player.y+dy):
                 target=get_blocking_entities(entities, player.x+dx, player.y+dy)
                 if target:
-                    player.combatant.attack(target)
+                    player_turn_results.extend(player.combatant.attack(target))
                 else:
                     player.move(dx, dy)
                     fov_recompute=True
@@ -73,11 +75,39 @@ def main():
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
 
+        for announcement in player_turn_results:
+            message=announcement.get('message')
+            dead=announcement.get('dead')
+            if message:
+                print(message)
+            if dead:
+                if dead==player:
+                    message, game_state=kill_player(dead)
+                else:
+                    message=kill_monster(dead)
+                print(message)
+
         if game_state==GameStates.ENEMY_TURN:
             for entity in entities:
                 if entity.ai:
-                    entity.ai.take_turn(player, fov_map, game_map, entities)
-            game_state=GameStates.PLAYER_TURN
+                    enemy_turn_results=entity.ai.take_turn(player, fov_map, game_map, entities)
+                    for announcement in enemy_turn_results:
+                        message=announcement.get('message')
+                        dead=announcement.get('dead')
+                        if message:
+                            print(message)
+                        if dead:
+                            if dead==player:
+                                message, game_state=kill_player(dead)
+                            else:
+                                message=kill_monster(dead)
+                            print(message)
+                            if game_state==GameStates.PLAYER_DEAD:
+                                break
+                    if game_state==GameStates.PLAYER_DEAD:
+                        break
+            else:
+                game_state=GameStates.PLAYER_TURN
 
 if __name__ == '__main__':
     main()

@@ -1,13 +1,15 @@
 import tcod as libtcod
+from render_functions import RenderOrder
 
 class Entity:
-    def __init__(self, x, y, char, colour, name, block_movement=False, combatant=None, ai=None):
+    def __init__(self, x, y, char, colour, name, block_movement=False, render_order=RenderOrder.CORPSE, combatant=None, ai=None):
         self.x=x
         self.y=y
         self.char=char
         self.colour=colour
         self.name=name
         self.block_movement=block_movement
+        self.render_order=render_order
         self.combatant=combatant
         self.ai=ai
         if self.combatant:
