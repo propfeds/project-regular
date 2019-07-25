@@ -24,12 +24,12 @@ class Entity:
     def distance_to(self, target):
         dx=target.x-self.x
         dy=target.y-self.y
-        return max(dx, dy)
+        return max(abs(dx), abs(dy))
 
     def move_towards(self, target_x, target_y, game_map, entities):
         dx=target_x-self.x
         dy=target_y-self.y
-        distance=max(dx, dy)
+        distance=max(abs(dx), abs(dy))
         dx=int(round(dx/distance))
         dy=int(round(dy/distance))
 
