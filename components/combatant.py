@@ -1,5 +1,4 @@
-# pylint: disable=no-member
-# Fuck off seriously
+#pylint: disable=no-member
 class Combatant:
     def __init__(self, health, stamina, attack, ac):
         self.max_hp=health
@@ -20,6 +19,6 @@ class Combatant:
     def attack_physical(self, target):
         results=[]
         damage_taken=self.attack-target.combatant.ac
-        results.append({'message': '{0} attacks {1} for {2} HP.'.format(self.owner.name, target.owner.name, str(damage_taken))})
+        results.append({'message': '{0} attacks {1} for {2} HP.'.format(self.owner.name, target.name, str(damage_taken))})
         results.extend(target.combatant.take_damage(damage_taken))
         return results

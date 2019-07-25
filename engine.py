@@ -29,7 +29,7 @@ def main():
         'light_ground': libtcod.Color(138, 111, 48)
     }
 
-    player=Entity(0, 0, '@', libtcod.brass, '(Player) Ratiel Snailface the Snek Charmer', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=6, ac=2))
+    player=Entity(0, 0, '@', libtcod.brass, '(Player) Ratiel Snailface the Snek Charmer', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=6, ac=8))
     entities=[player]
 
     libtcod.console_init_root(screen_width, screen_height, 'Sneks: The Circles of Angband', False)
@@ -63,7 +63,7 @@ def main():
             if not game_map.is_blocked(player.x+dx, player.y+dy):
                 target=get_blocking_entities(entities, player.x+dx, player.y+dy)
                 if target:
-                    player_turn_results.extend(player.combatant.attack(target))
+                    player_turn_results.extend(player.combatant.attack_physical(target))
                 else:
                     player.move(dx, dy)
                     fov_recompute=True
