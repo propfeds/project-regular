@@ -6,6 +6,7 @@ from render_functions import render_all, clear_all
 from map_objects.game_map import GameMap
 from fov_functions import init_fov, recompute_fov
 from random import randint
+from components.combatant import Combatant
 
 def main():
     screen_width=80
@@ -27,7 +28,7 @@ def main():
         'light_ground': libtcod.Color(138, 111, 48)
     }
 
-    player=Entity(0, 0, '@', libtcod.brass, '(Player)Ratielle Snailface the Snek Charmer', block_movement=True)
+    player=Entity(0, 0, '@', libtcod.brass, '(Player)Ratiel Snailface the Snek Charmer', block_movement=True, combatant=Combatant(health=24, stamina=60, attack=6, ac=2))
     entities=[player]
 
     libtcod.console_init_root(screen_width, screen_height, 'Sneks: The Circles of Angband', False)
@@ -60,7 +61,7 @@ def main():
             if not game_map.is_blocked(player.x+dx, player.y+dy):
                 target=get_blocking_entities(entities, player.x+dx, player.y+dy)
                 if target:
-                    print('You chop chop the '+target.name+'\'s chin because you think they\'re Kripto and you hate Kripto!')
+                    player.combatant.attack(target)
                 else:
                     player.move(dx, dy)
                     fov_recompute=True
@@ -74,9 +75,8 @@ def main():
 
         if game_state==GameStates.ENEMY_TURN:
             for entity in entities:
-                if entity!=player:
-                    if randint(0, 100)>95:
-                        print('The '+entity.name+' laughs hysterically at you!')
+                if entity.ai:
+                    entity.ai.take_turn(player, fov_map, game_map, entities)
             game_state=GameStates.PLAYER_TURN
 
 if __name__ == '__main__':

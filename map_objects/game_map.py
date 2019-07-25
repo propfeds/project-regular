@@ -3,6 +3,8 @@ from random import randint
 from entity import Entity
 from map_objects.tile import Tile
 from map_objects.rect import Rect
+from components.ai import Brute
+from components.combatant import Combatant
 
 class GameMap:
     def __init__(self, width, height):
@@ -70,9 +72,9 @@ class GameMap:
             x=randint(room.x1+1, room.x2-1)
             y=randint(room.y1+1, room.y2-1)
             if not any([entity for entity in entities if entity.x==x and entity.y==y]):
-                # ninety percent to spawn a white european, ten percent to spawn a green orck
+                # Ninety percent to spawn a white european, ten percent to spawn a green orck
                 if randint(0, 100)<90:
-                    monster=Entity(x, y, 'm', libtcod.white, 'Man', block_movement=True)
+                    monster=Entity(x, y, 'm', libtcod.white, 'Man', block_movement=True, combatant=Combatant(health=15, stamina=40, attack=3, ac=1), ai=Brute())
                 else:
-                    monster=Entity(x, y, 'o', libtcod.desaturated_green, 'Orck', block_movement=True)
+                    monster=Entity(x, y, 'o', libtcod.desaturated_green, 'Orck', block_movement=True, combatant=Combatant(health=50, stamina=50, attack=7, ac=3), ai=Brute())
                 entities.append(monster)
