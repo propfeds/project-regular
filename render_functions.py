@@ -36,14 +36,12 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, s
     render_ordered_entities=sorted(entities, key=lambda x: x.render_order.value)
     for entity in render_ordered_entities:
         draw_entity(con, entity, fov_map)
-
+    libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
     # HP bar
     libtcod.console_set_default_background(panel, libtcod.black)
     libtcod.console_clear(panel)
     render_bar(panel, 1, 1, bar_width, 'HP', player.combatant.health, player.combatant.max_hp, libtcod.light_red, libtcod.darker_red)
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, screen_height-panel_height)
-
-    libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
 
 def clear_all(con, entities):
     for entity in entities:
