@@ -35,6 +35,7 @@ def main():
     player=Entity(0, 0, '@', libtcod.brass, 'Snekman', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=6, ac=8))
     entities=[player]
 
+    libtcod.console_set_custom_font('consolas12x12_gs_tc.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
     libtcod.console_init_root(screen_width, screen_height, 'Sneks: The Circles of Angband', False)
     con=libtcod.console_new(screen_width, screen_height)
     panel=libtcod.console_new(screen_width, screen_height-panel_height)
