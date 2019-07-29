@@ -6,6 +6,12 @@ class RenderOrder(Enum):
     ITEM=2
     ACTOR=3
 
+def get_names_mouseover(mouse, entities, fov_map):
+    (x, y)=(mouse.cx, mouse.cy)
+    names=[entity.name for entity in entities if entity.x==x and entity.y==y and libtcod.map_is_in_fov(fov_map, entity.x, entity.y)]
+    names=', '.join(names)
+    return names
+
 def render_bar(panel, x, y, width, name, value, maximum, bar_colour, back_colour):
     filled_width=int(float(value)/maximum*width)
     libtcod.console_set_default_background(panel, back_colour)
@@ -16,7 +22,7 @@ def render_bar(panel, x, y, width, name, value, maximum, bar_colour, back_colour
     libtcod.console_set_default_foreground(panel, libtcod.white)
     libtcod.console_print_ex(panel, int((x+width+1)/2), y, libtcod.BKGND_NONE, libtcod.CENTER, '{0}: {1}/{2}'.format(name, value, maximum))
 
-def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, colours):
+def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, mouse, colours):
     if fov_recompute:
         for y in range(game_map.height):
             for x in range(game_map.width):
@@ -47,6 +53,10 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
         libtcod.console_print_ex(panel, message_log.x, y, libtcod.BKGND_NONE, libtcod.LEFT, message.text)
         y+=1
     render_bar(panel, 1, 1, bar_width, 'HP', player.combatant.health, player.combatant.max_hp, libtcod.light_red, libtcod.darker_red)
+    # Mouseover details
+    libtcod.console_set_default_foreground(panel, libtcod.light_gray)
+    libtcod.console_print_ex(panel, 1, 0, libtcod.BKGND_NONE, libtcod.LEFT, get_names_mouseover(mouse, entities, fov_map))
+
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, screen_height-panel_height)
 
 def clear_all(con, entities):
