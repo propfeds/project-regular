@@ -54,13 +54,15 @@ def main():
     key=libtcod.Key()
     mouse=libtcod.Mouse()
     game_state=GameStates.PLAYER_TURN
+    # So that any menu will return to the previous game state
+    prev_game_state=game_state
 
     while not libtcod.console_is_window_closed():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
         # This is the render_all just below so I won't have to look for it again
-        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, mouse, colours)
+        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, mouse, colours, game_state)
         fov_recompute=False
         libtcod.console_flush()
         clear_all(con, entities)
@@ -68,6 +70,7 @@ def main():
         action=handle_keys(key)
         move=action.get('move')
         pickup=action.get('pickup')
+        take_inventory=action.get('take_inventory')
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
 
@@ -90,8 +93,15 @@ def main():
             else:
                 message_log.add_message(Message('You grab the ground for no reason.', libtcod.yellow))
 
+        if take_inventory:
+            prev_game_state=game_state
+            game_state=GameStates.INVENTORY
+
         if exit:
-            return True
+            if game_state==GameStates.INVENTORY:
+                game_state=prev_game_state
+            else:
+                return True
 
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())

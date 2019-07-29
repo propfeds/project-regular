@@ -22,6 +22,9 @@ def handle_keys(key):
     # Crab Grab
     if key_char=='g':
         return {'pickup': True}
+    # Big Bag
+    if key_char=='i':
+        return {'take_inventory': True}
     # Big Screen
     if key.vk==libtcod.KEY_ENTER and key.lalt:
         return {'fullscreen': True}
