@@ -25,6 +25,7 @@ def main():
     room_min_size=6
     max_rooms=40
     max_monsters_per_room=3
+    max_items_per_room=1
     fov_algorithm=0
     fov_light_walls=True
     fov_radius=7
@@ -44,7 +45,7 @@ def main():
     con=libtcod.console_new(screen_width, screen_height)
     panel=libtcod.console_new(screen_width, screen_height-panel_height)
     game_map=GameMap(map_width, map_height)
-    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room)
+    game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room)
     fov_recompute=True
     fov_map=init_fov(game_map)
     message_log=MessageLog(message_x, message_width, message_height)

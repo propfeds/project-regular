@@ -16,7 +16,7 @@ class GameMap:
         # True: walls!
         tiles=[[Tile(True) for y in range(self.height)] for x in range(self.width)]
         return tiles
-    def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room):
+    def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room):
         rooms=[]
         num_rooms=0
         for _ in range(max_rooms):
@@ -46,7 +46,7 @@ class GameMap:
                         self.carve_tunnel_y(prev_y, new_y, prev_x)
                         self.carve_tunnel_x(prev_x, new_x, new_y)
             
-                self.spawn_entities(new_room, entities, max_monsters_per_room)
+                self.spawn_entities(new_room, entities, max_monsters_per_room, max_items_per_room)
                 rooms.append(new_room)
                 num_rooms+=1
     def carve_room(self, room):
@@ -67,7 +67,8 @@ class GameMap:
             return True
         return False
 
-    def spawn_entities(self, room, entities, max_monsters_per_room):
+    def spawn_entities(self, room, entities, max_monsters_per_room, max_items_per_room):
+        # spawning some baddies
         number_of_monsters=randint(0, max_monsters_per_room)
         for _ in range(number_of_monsters):
             x=randint(room.x1+1, room.x2-1)
@@ -79,3 +80,11 @@ class GameMap:
                 else:
                     monster=Entity(x, y, 'o', libtcod.desaturated_green, 'Orck', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=50, stamina=50, attack=7, ac=2), ai=Brute())
                 entities.append(monster)
+        # spawning some potties
+        number_of_items=randint(0, max_items_per_room)
+        for _ in range(number_of_items):
+            x=randint(room.x1+1, room.x2-1)
+            y=randint(room.y1+1, room.y2-1)
+            if not any([entity for entity in entities if entity.x==x and entity.y==y]):
+                item=Entity(x, y, '!', libtcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM)
+                entities.append(item)
