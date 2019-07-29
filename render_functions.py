@@ -14,9 +14,9 @@ def render_bar(panel, x, y, width, name, value, maximum, bar_colour, back_colour
     if filled_width>0:
         libtcod.console_rect(panel, x, y, filled_width, 1, False, libtcod.BKGND_SCREEN)
     libtcod.console_set_default_foreground(panel, libtcod.white)
-    libtcod.console_print_ex(panel, int((x+width+1)/2), y, libtcod.BKGND_NONE, libtcod.CENTER, '{0}:{1}/{2}'.format(name, value, maximum))
+    libtcod.console_print_ex(panel, int((x+width+1)/2), y, libtcod.BKGND_NONE, libtcod.CENTER, '{0}: {1}/{2}'.format(name, value, maximum))
 
-def render_all(con, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, colours):
+def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, bar_width, panel_height, colours):
     if fov_recompute:
         for y in range(game_map.height):
             for x in range(game_map.width):
@@ -37,9 +37,11 @@ def render_all(con, entities, player, game_map, fov_map, fov_recompute, screen_w
     for entity in render_ordered_entities:
         draw_entity(con, entity, fov_map)
 
-    # Fake hud
-    libtcod.console_set_default_foreground(con, libtcod.white)
-    libtcod.console_print_ex(con, 1, screen_height-2, libtcod.BKGND_NONE, libtcod.LEFT, 'HP: {0:02}/{1:02}'.format(player.combatant.health, player.combatant.max_hp))
+    # HP bar
+    libtcod.console_set_default_background(panel, libtcod.black)
+    libtcod.console_clear(panel)
+    render_bar(panel, 1, 1, bar_width, 'HP', player.combatant.health, player.combatant.max_hp, libtcod.light_red, libtcod.darker_red)
+    libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, screen_height-panel_height)
 
     libtcod.console_blit(con, 0, 0, screen_width, screen_height, 0, 0, 0)
 
