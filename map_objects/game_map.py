@@ -7,6 +7,7 @@ from components.ai import Brute
 from components.combatant import Combatant
 from components.item import Item
 from render_functions import RenderOrder
+from item_functions import heal
 
 class GameMap:
     def __init__(self, width, height):
@@ -87,5 +88,5 @@ class GameMap:
             x=randint(room.x1+1, room.x2-1)
             y=randint(room.y1+1, room.y2-1)
             if not any([entity for entity in entities if entity.x==x and entity.y==y]):
-                item=Entity(x, y, '!', libtcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item())
+                item=Entity(x, y, '!', libtcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item(use_function=heal, amount=7))
                 entities.append(item)
