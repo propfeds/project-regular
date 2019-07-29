@@ -67,10 +67,11 @@ def main():
         libtcod.console_flush()
         clear_all(con, entities)
 
-        action=handle_keys(key)
+        action=handle_keys(key, game_state)
         move=action.get('move')
         pickup=action.get('pickup')
         take_inventory=action.get('take_inventory')
+        inventory_index=action.get('inventory_index')
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
 
@@ -97,12 +98,16 @@ def main():
             prev_game_state=game_state
             game_state=GameStates.INVENTORY
 
+        if inventory_index is not None and prev_game_state!=GameStates.PLAYER_DEAD and inventory_index<len(player.inventory):
+            item=player.inventory.items[inventory_index]
+            # Placeholder
+            print(item)
+
         if exit:
             if game_state==GameStates.INVENTORY:
                 game_state=prev_game_state
             else:
                 return True
-
         if fullscreen:
             libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
 
