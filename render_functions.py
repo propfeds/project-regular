@@ -16,7 +16,7 @@ def render_bar(panel, x, y, width, name, value, maximum, bar_colour, back_colour
     libtcod.console_set_default_foreground(panel, libtcod.white)
     libtcod.console_print_ex(panel, int((x+width+1)/2), y, libtcod.BKGND_NONE, libtcod.CENTER, '{0}: {1}/{2}'.format(name, value, maximum))
 
-def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, bar_width, panel_height, colours):
+def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, colours):
     if fov_recompute:
         for y in range(game_map.height):
             for x in range(game_map.width):
@@ -40,6 +40,12 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, s
     # HP bar
     libtcod.console_set_default_background(panel, libtcod.black)
     libtcod.console_clear(panel)
+    # Message log
+    y=1
+    for message in message_log.messages:
+        libtcod.console_set_default_foreground(panel, message.colour)
+        libtcod.console_print_ex(panel, message_log.x, y, libtcod.BKGND_NONE, libtcod.LEFT, message.text)
+        y+=1
     render_bar(panel, 1, 1, bar_width, 'HP', player.combatant.health, player.combatant.max_hp, libtcod.light_red, libtcod.darker_red)
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, screen_height-panel_height)
 

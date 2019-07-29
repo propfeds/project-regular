@@ -1,4 +1,6 @@
 #pylint: disable=no-member
+import tcod as libtcod
+from game_messages import Message
 class Combatant:
     def __init__(self, health, stamina, attack, ac):
         self.max_hp=health
@@ -20,6 +22,6 @@ class Combatant:
         results=[]
         damage_taken=max(0, self.attack-target.combatant.ac)
         if damage_taken>0:
-            results.append({'message': '{0} attacks {1} for {2} HP.'.format(self.owner.name, target.name, str(damage_taken))})
+            results.append({'message': Message('{0} attacks {1} for {2} HP.'.format(self.owner.name, target.name, str(damage_taken)), libtcod.white)})
         results.extend(target.combatant.take_damage(damage_taken))
         return results

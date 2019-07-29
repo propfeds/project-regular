@@ -77,5 +77,5 @@ class GameMap:
                 if randint(0, 100)<90:
                     monster=Entity(x, y, 'm', libtcod.white, 'Man', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=15, stamina=40, attack=3, ac=1), ai=Brute())
                 else:
-                    monster=Entity(x, y, 'o', libtcod.desaturated_green, 'Orck', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=50, stamina=50, attack=7, ac=3), ai=Brute())
+                    monster=Entity(x, y, 'o', libtcod.desaturated_green, 'Orck', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=50, stamina=50, attack=7, ac=2), ai=Brute())
                 entities.append(monster)

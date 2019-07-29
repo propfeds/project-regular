@@ -8,6 +8,7 @@ from fov_functions import init_fov, recompute_fov
 from random import randint
 from components.combatant import Combatant
 from death_functions import kill_monster, kill_player
+from game_messages import MessageLog
 
 def main():
     screen_width=80
@@ -16,6 +17,9 @@ def main():
     map_height=43
     bar_width=20
     panel_height=7
+    message_x=bar_width+2
+    message_width=screen_width-bar_width-2
+    message_height=panel_height-1
 
     room_max_size=8
     room_min_size=6
@@ -32,7 +36,7 @@ def main():
         'light_ground': libtcod.Color(138, 111, 48)
     }
 
-    player=Entity(0, 0, '@', libtcod.brass, 'Snekman', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=6, ac=8))
+    player=Entity(0, 0, '@', libtcod.yellow, 'Ratiel Snailface the Snek Oil Snekman (Player Character)', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=8, ac=6))
     entities=[player]
 
     libtcod.console_set_custom_font('consolas12x12_gs_tc.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
@@ -43,6 +47,7 @@ def main():
     game_map.make_map(max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room)
     fov_recompute=True
     fov_map=init_fov(game_map)
+    message_log=MessageLog(message_x, message_width, message_height)
 
     key=libtcod.Key()
     mouse=libtcod.Mouse()
@@ -52,7 +57,7 @@ def main():
         libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS, key, mouse)
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, fov_radius, fov_light_walls, fov_algorithm)
-        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, bar_width, panel_height, colours)
+        render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, screen_width, screen_height, bar_width, panel_height, colours)
         fov_recompute=False
         libtcod.console_flush()
         clear_all(con, entities)
@@ -84,13 +89,13 @@ def main():
             message=announcement.get('message')
             dead=announcement.get('dead')
             if message:
-                print(message)
+                message_log.add_message(message)
             if dead:
                 if dead==player:
                     message, game_state=kill_player(dead)
                 else:
                     message=kill_monster(dead)
-                print(message)
+                message_log.add_message(message)
 
         if game_state==GameStates.ENEMY_TURN:
             for entity in entities:
@@ -100,13 +105,13 @@ def main():
                         message=announcement.get('message')
                         dead=announcement.get('dead')
                         if message:
-                            print(message)
+                            message_log.add_message(message)
                         if dead:
                             if dead==player:
                                 message, game_state=kill_player(dead)
                             else:
                                 message=kill_monster(dead)
-                            print(message)
+                            message_log.add_message(message)
                             if game_state==GameStates.PLAYER_DEAD:
                                 break
                     if game_state==GameStates.PLAYER_DEAD:
