@@ -6,6 +6,16 @@ class RenderOrder(Enum):
     ITEM=2
     ACTOR=3
 
+def render_bar(panel, x, y, width, name, value, maximum, bar_colour, back_colour):
+    filled_width=int(float(value)/maximum*width)
+    libtcod.console_set_default_background(panel, back_colour)
+    libtcod.console_rect(panel, x, y, width, 1, False, libtcod.BKGND_SCREEN)
+    libtcod.console_set_default_background(panel, bar_colour)
+    if filled_width>0:
+        libtcod.console_rect(panel, x, y, filled_width, 1, False, libtcod.BKGND_SCREEN)
+    libtcod.console_set_default_foreground(panel, libtcod.white)
+    libtcod.console_print_ex(panel, int((x+width+1)/2), y, libtcod.BKGND_NONE, libtcod.CENTER, '{0}:{1}/{2}'.format(name, value, maximum))
+
 def render_all(con, entities, player, game_map, fov_map, fov_recompute, screen_width, screen_height, colours):
     if fov_recompute:
         for y in range(game_map.height):
