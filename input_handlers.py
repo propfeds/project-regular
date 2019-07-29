@@ -19,7 +19,9 @@ def handle_keys(key):
         return {'move': (-1, 1)}
     elif key.vk==libtcod.KEY_KP3 or key_char=='n':
         return {'move': (1, 1)}
-
+    # Crab Grab
+    if key_char=='g':
+        return {'pickup': True}
     # Big Screen
     if key.vk==libtcod.KEY_ENTER and key.lalt:
         return {'fullscreen': True}

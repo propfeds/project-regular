@@ -1,6 +1,7 @@
 import tcod as libtcod
 from game_states import GameStates
 from render_functions import RenderOrder
+from components.item import Item
 from game_messages import Message
 
 def kill_player(player):
@@ -16,5 +17,6 @@ def kill_monster(monster):
     monster.combatant=None
     monster.block_movement=False
     monster.render_order=RenderOrder.CORPSE
+    monster.item=Item()
     monster.name='A {0} corpse'.format(monster.name)
     return death_message

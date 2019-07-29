@@ -7,8 +7,9 @@ from map_objects.game_map import GameMap
 from fov_functions import init_fov, recompute_fov
 from random import randint
 from components.combatant import Combatant
+from components.inventory import Inventory
 from death_functions import kill_monster, kill_player
-from game_messages import MessageLog
+from game_messages import MessageLog, Message
 
 def main():
     screen_width=80
@@ -37,7 +38,7 @@ def main():
         'light_ground': libtcod.Color(138, 111, 48)
     }
 
-    player=Entity(0, 0, '@', libtcod.yellow, 'Ratiel Snailface the Snek Oil Snekman (Player Character)', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=8, ac=6))
+    player=Entity(0, 0, '@', libtcod.yellow, 'Ratiel Snailface the Snek Oil Snekman (Player Character)', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=8, ac=6), item=None, inventory=Inventory(26))
     entities=[player]
 
     libtcod.console_set_custom_font('consolas12x12_gs_tc.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
@@ -66,6 +67,7 @@ def main():
 
         action=handle_keys(key)
         move=action.get('move')
+        pickup=action.get('pickup')
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
 
@@ -80,7 +82,14 @@ def main():
                     player.move(dx, dy)
                     fov_recompute=True
                 game_state=GameStates.ENEMY_TURN
-        
+        elif pickup and game_state==GameStates.PLAYER_TURN:
+            for entity in entities:
+                if entity.item and entity.x==player.x and entity.y==player.y:
+                    player_turn_results.extend(player.inventory.add(entity))
+                    break
+            else:
+                message_log.add_message(Message('You grab the ground for no reason.', libtcod.yellow))
+
         if exit:
             return True
 
@@ -90,6 +99,7 @@ def main():
         for announcement in player_turn_results:
             message=announcement.get('message')
             dead=announcement.get('dead')
+            item_added=announcement.get('item_added')
             if message:
                 message_log.add_message(message)
             if dead:
@@ -98,6 +108,9 @@ def main():
                 else:
                     message=kill_monster(dead)
                 message_log.add_message(message)
+            if item_added:
+                entities.remove(item_added)
+                game_state=GameStates.ENEMY_TURN
 
         if game_state==GameStates.ENEMY_TURN:
             for entity in entities:

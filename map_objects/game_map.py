@@ -5,6 +5,7 @@ from map_objects.tile import Tile
 from map_objects.rect import Rect
 from components.ai import Brute
 from components.combatant import Combatant
+from components.item import Item
 from render_functions import RenderOrder
 
 class GameMap:
@@ -86,5 +87,5 @@ class GameMap:
             x=randint(room.x1+1, room.x2-1)
             y=randint(room.y1+1, room.y2-1)
             if not any([entity for entity in entities if entity.x==x and entity.y==y]):
-                item=Entity(x, y, '!', libtcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM)
+                item=Entity(x, y, '!', libtcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item())
                 entities.append(item)

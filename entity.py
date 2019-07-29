@@ -1,8 +1,10 @@
 import tcod as libtcod
 from render_functions import RenderOrder
+from components.inventory import Inventory
+from components.item import Item
 
 class Entity:
-    def __init__(self, x, y, char, colour, name, block_movement=False, render_order=RenderOrder.CORPSE, combatant=None, ai=None):
+    def __init__(self, x, y, char, colour, name, block_movement=False, render_order=RenderOrder.CORPSE, combatant=None, ai=None, item=None, inventory=None):
         self.x=x
         self.y=y
         self.char=char
@@ -10,8 +12,12 @@ class Entity:
         self.name=name
         self.block_movement=block_movement
         self.render_order=render_order
+        # combatant: knows how to fight
         self.combatant=combatant
         self.ai=ai
+        # item: is an item
+        self.item=item
+        self.inventory=inventory
         if self.combatant:
             self.combatant.owner=self
         if self.ai:
