@@ -100,8 +100,7 @@ def main():
 
         if inventory_index is not None and prev_game_state!=GameStates.PLAYER_DEAD and inventory_index<len(player.inventory):
             item=player.inventory.items[inventory_index]
-            # Placeholder
-            print(item)
+            player_turn_results.extend(player.inventory.use(item))
 
         if exit:
             if game_state==GameStates.INVENTORY:
@@ -115,6 +114,7 @@ def main():
             message=announcement.get('message')
             dead=announcement.get('dead')
             item_added=announcement.get('item_added')
+            item_consumed=announcement.get('item_consumed')
             if message:
                 message_log.add_message(message)
             if dead:
@@ -125,6 +125,8 @@ def main():
                 message_log.add_message(message)
             if item_added:
                 entities.remove(item_added)
+                game_state=GameStates.ENEMY_TURN
+            if item_consumed:
                 game_state=GameStates.ENEMY_TURN
 
         if game_state==GameStates.ENEMY_TURN:
