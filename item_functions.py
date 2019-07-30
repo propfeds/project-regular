@@ -36,14 +36,18 @@ def dorkbolt(*args, **kwargs):
 
 def dorkblast(*args, **kwargs):
     entities=kwargs.get('entities')
+    fov_map=kwargs.get('fov_map')
     damage=kwargs.get('damage')
     radius=kwargs.get('radius')
     target_x=kwargs.get('target_x')
     target_y=kwargs.get('target_y')
     results=[]
+    if not libtcod.map_is_in_fov(fov_map, target_x, target_y):
+        results.append({'consumed': False, 'message': Message('You can\'t see where you\'re firing!', libtcod.yellow)})
+        return results
     results.append({'consumed': True, 'message': Message('A clump of dork dislodges from the ground!')})
     for entity in entities:
         if entity.distance_to_point(target_x, target_y)<=radius and entity.combatant:
-            results.append({'message': Message('The {0} takes {1} dmaage from the blast.'.format(entity.name, damage))})
+            results.append({'message': Message('The {0} takes {1} damage from the blast.'.format(entity.name, damage))})
             results.extend(entity.combatant.take_damage(damage))
     return results

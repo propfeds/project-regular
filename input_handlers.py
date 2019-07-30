@@ -48,6 +48,19 @@ def handle_player_turn_keys(key):
     # Nuttin Press
     return {}
 
+def handle_targeting_keys(key):
+    if key.vk==libtcod.KEY_ESCAPE:
+        return {'exit': True}
+    return {}
+
+def handle_mouse(mouse):
+    (x, y)=(mouse.cx, mouse.cy)
+    if mouse.lbutton_pressed:
+        return {'left_click': (x, y)}
+    elif mouse.rbutton_pressed:
+        return {'right_click': (x, y)}
+    return {}
+
 def handle_player_dead_keys(key):
     key_char=chr(key.c)
     if key_char=='i':
@@ -66,17 +79,4 @@ def handle_inventory_keys(key):
         return {'fullscreen': True}
     elif key.vk==libtcod.KEY_ESCAPE:
         return {'exit': True}
-    return {}
-
-def handle_targeting_keys(key):
-    if key.vk==libtcod.KEY_ESCAPE:
-        return {'exit': True}
-    return {}
-
-def handle_mouse(mouse):
-    (x, y)=(mouse.cx, mouse.cy)
-    if mouse.lbutton_pressed:
-        return {'left_click': (x, y)}
-    elif mouse.rbutton_pressed:
-        return {'right_click': (x, y)}
     return {}

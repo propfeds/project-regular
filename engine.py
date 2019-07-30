@@ -69,6 +69,8 @@ def main():
         clear_all(con, entities)
 
         action=handle_keys(key, game_state)
+        mouse_action=handle_mouse(mouse)
+
         move=action.get('move')
         pickup=action.get('pickup')
         take_inventory=action.get('take_inventory')
@@ -76,8 +78,7 @@ def main():
         inventory_index=action.get('inventory_index')
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
-
-        mouse_action=handle_mouse(mouse)
+        
         left_click=mouse_action.get('left_click')
         right_click=mouse_action.get('right_click')
 
@@ -119,7 +120,6 @@ def main():
             if left_click:
                 target_x, target_y=left_click
                 player_turn_results.extend(player.inventory.use_item(targeting_item, entities=entities, fov_map=fov_map, target_x=target_x, target_y=target_y))
-                player_turn_results.append({'targeting_cancelled': True})
             elif right_click:
                 player_turn_results.append({'targeting_cancelled': True})
 
