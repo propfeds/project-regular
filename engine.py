@@ -90,7 +90,7 @@ def main():
         elif pickup and game_state==GameStates.PLAYER_TURN:
             for entity in entities:
                 if entity.item and entity.x==player.x and entity.y==player.y:
-                    player_turn_results.extend(player.inventory.add(entity))
+                    player_turn_results.extend(player.inventory.add_item(entity))
                     break
             else:
                 message_log.add_message(Message('You grab the ground for no reason.', libtcod.yellow))
@@ -103,8 +103,8 @@ def main():
             prev_game_state=game_state
             game_state=GameStates.DROP_INVENTORY
 
-        if inventory_index is not None and prev_game_state!=GameStates.PLAYER_DEAD and inventory_index<len(player.inventory):
-            item=player.inventory.items[inventory_index]
+        if inventory_index is not None and prev_game_state!=GameStates.PLAYER_DEAD and inventory_index<len(player.inventory.contents):
+            item=player.inventory.contents[inventory_index]
             if game_state==GameStates.INVENTORY:
                 player_turn_results.extend(player.inventory.use_item(item))
             elif game_state==GameStates.DROP_INVENTORY:

@@ -21,7 +21,7 @@ def menu(con, header, options, width, screen_width, screen_height):
     libtcod.console_blit(window, 0, 0, width, height, 0, x, y, 1, 0.7)
 
 def inventory_menu(con, header, inventory, inventory_width, screen_width, screen_height):
-    if len(inventory.items)==0:
+    if len(inventory.contents)==0:
         options=['Your inventory is empty.']
     else:
         options=[item.name for item in inventory.contents]

@@ -20,16 +20,17 @@ class Inventory:
         results=[]
         if item_entity.item.use_function is None:
             results.append({'message': Message('You don\'t see a way to use the {0}.'.format(item_entity.name), libtcod.yellow)})
-        kwargs={**item_entity.item.function_kwargs, **kwargs}
-        item_use_results=item_entity.item.use_function(self.owner, **kwargs)
-        for result in item_use_results:
-            if result.get('consumed'):
-                self.remove_item(item_entity)
-        results.extend(item_use_results)
+        else:
+            kwargs={**item_entity.item.function_kwargs, **kwargs}
+            item_use_results=item_entity.item.use_function(self.owner, **kwargs)
+            for result in item_use_results:
+                if result.get('consumed'):
+                    self.remove_item(item_entity)
+            results.extend(item_use_results)
         return results
 
     def remove_item(self, item):
-        self.items.remove(item)
+        self.contents.remove(item)
 
     def drop_item(self, item):
         results=[]
