@@ -119,6 +119,7 @@ def main():
             if left_click:
                 target_x, target_y=left_click
                 player_turn_results.extend(player.inventory.use_item(targeting_item, entities=entities, fov_map=fov_map, target_x=target_x, target_y=target_y))
+                player_turn_results.append({'targeting_cancelled': True})
             elif right_click:
                 player_turn_results.append({'targeting_cancelled': True})
 
