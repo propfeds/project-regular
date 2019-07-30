@@ -7,7 +7,8 @@ from components.ai import Brute
 from components.combatant import Combatant
 from components.item import Item
 from render_functions import RenderOrder
-from item_functions import heal, dorkbolt
+from item_functions import heal, dorkbolt, dorkblast
+from game_messages import Message
 
 class GameMap:
     def __init__(self, width, height):
@@ -91,6 +92,8 @@ class GameMap:
                 item_roll=randint(0, 100)
                 if item_roll<44:
                     item=Entity(x, y, '!', libtcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item(use_function=heal, amount=7))
-                else:
+                elif item_roll<72:
                     item=Entity(x, y, '#', libtcod.yellow, 'Scroll of Dorkbolt', render_order=RenderOrder.ITEM, item=Item(use_function=dorkbolt, damage=27, maximum_range=11))
+                else:
+                    item=Entity(x, y, '#', libtcod.orange, 'Scroll of Dorkblast', render_order=RenderOrder.ITEM, item=Item(use_function=dorkblast, targeting=True, targeting_message=Message('Use your mouse to fire because facepalm.', libtcod.lighter_blue), damage=21, radius=2))
                 entities.append(item)

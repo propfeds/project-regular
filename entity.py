@@ -35,6 +35,11 @@ class Entity:
         dx=target.x-self.x
         dy=target.y-self.y
         return max(abs(dx), abs(dy))
+    
+    def distance_to_point(self, target_x, target_y):
+        dx=target_x-self.x
+        dy=target_y-self.y
+        return max(abs(dx), abs(dy))
 
     def move_towards(self, target_x, target_y, game_map, entities):
         dx=target_x-self.x

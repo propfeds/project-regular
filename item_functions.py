@@ -43,7 +43,7 @@ def dorkblast(*args, **kwargs):
     results=[]
     results.append({'consumed': True, 'message': Message('A clump of dork dislodges from the ground!')})
     for entity in entities:
-        if entity.distance_to(target_x, target_y)<=radius and entity.combatant:
+        if entity.distance_to_point(target_x, target_y)<=radius and entity.combatant:
             results.append({'message': Message('The {0} takes {1} dmaage from the blast.'.format(entity.name, damage))})
             results.extend(entity.combatant.take_damage(damage))
     return results
