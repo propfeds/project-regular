@@ -26,7 +26,7 @@ def main():
     room_min_size=6
     max_rooms=40
     max_monsters_per_room=3
-    max_items_per_room=1
+    max_items_per_room=2
     fov_algorithm=0
     fov_light_walls=True
     fov_radius=7
@@ -106,7 +106,7 @@ def main():
         if inventory_index is not None and prev_game_state!=GameStates.PLAYER_DEAD and inventory_index<len(player.inventory.contents):
             item=player.inventory.contents[inventory_index]
             if game_state==GameStates.INVENTORY:
-                player_turn_results.extend(player.inventory.use_item(item))
+                player_turn_results.extend(player.inventory.use_item(item, entities=entities, fov_map=fov_map))
             elif game_state==GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item))
 
