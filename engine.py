@@ -71,6 +71,7 @@ def main():
         move=action.get('move')
         pickup=action.get('pickup')
         take_inventory=action.get('take_inventory')
+        drop_inventory=action.get('drop_inventory')
         inventory_index=action.get('inventory_index')
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
@@ -97,13 +98,20 @@ def main():
         if take_inventory:
             prev_game_state=game_state
             game_state=GameStates.INVENTORY
+        
+        if drop_inventory:
+            prev_game_state=game_state
+            game_state=GameStates.DROP_INVENTORY
 
         if inventory_index is not None and prev_game_state!=GameStates.PLAYER_DEAD and inventory_index<len(player.inventory):
             item=player.inventory.items[inventory_index]
-            player_turn_results.extend(player.inventory.use(item))
+            if game_state==GameStates.INVENTORY:
+                player_turn_results.extend(player.inventory.use_item(item))
+            elif game_state==GameStates.DROP_INVENTORY:
+                player_turn_results.extend(player.inventory.drop_item(item))
 
         if exit:
-            if game_state==GameStates.INVENTORY:
+            if game_state in (GameStates.INVENTORY, GameStates.DROP_INVENTORY):
                 game_state=prev_game_state
             else:
                 return True
@@ -115,6 +123,7 @@ def main():
             dead=announcement.get('dead')
             item_added=announcement.get('item_added')
             item_consumed=announcement.get('item_consumed')
+            item_dropped=announcement.get('item_dropped')
             if message:
                 message_log.add_message(message)
             if dead:
@@ -127,6 +136,9 @@ def main():
                 entities.remove(item_added)
                 game_state=GameStates.ENEMY_TURN
             if item_consumed:
+                game_state=GameStates.ENEMY_TURN
+            if item_dropped:
+                entities.append(item_dropped)
                 game_state=GameStates.ENEMY_TURN
 
         if game_state==GameStates.ENEMY_TURN:

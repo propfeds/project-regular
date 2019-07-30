@@ -61,8 +61,12 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
 
     libtcod.console_blit(panel, 0, 0, screen_width, panel_height, 0, 0, screen_height-panel_height)
     # Taking inventory
-    if game_state==GameStates.INVENTORY:
-        inventory_menu(con, 'Taking Inventory: Press Escape to escape.\n', player.inventory, 50, screen_width, screen_height)
+    if game_state in (GameStates.INVENTORY, GameStates.DROP_INVENTORY):
+        if game_state==GameStates.INVENTORY:
+            title='Taking Inventory: Press Escape to escape.\n'
+        else:
+            title='Dropping Inventory: Press Escape to escape.\n'
+        inventory_menu(con, title, player.inventory, 50, screen_width, screen_height)
 
 def clear_all(con, entities):
     for entity in entities:

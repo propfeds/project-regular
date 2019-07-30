@@ -6,7 +6,7 @@ def handle_keys(key, game_state):
         return handle_player_turn_keys(key)
     elif game_state==GameStates.PLAYER_DEAD:
         return handle_player_dead_keys(key)
-    elif game_state==GameStates.INVENTORY:
+    elif game_state in (GameStates.INVENTORY, GameStates.DROP_INVENTORY):
         return handle_inventory_keys(key)
     return {}
 
@@ -32,9 +32,11 @@ def handle_player_turn_keys(key):
     # Crab Grab
     if key_char=='g':
         return {'pickup': True}
-    # Big Bag
+    # Unto the Big Bag
     if key_char=='i':
         return {'take_inventory': True}
+    elif key_char=='d':
+        return {'drop_inventory': True}
     # Big Screen
     if key.vk==libtcod.KEY_ENTER and key.lalt:
         return {'fullscreen': True}
