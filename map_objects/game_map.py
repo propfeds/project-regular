@@ -92,5 +92,5 @@ class GameMap:
                 if item_roll<44:
                     item=Entity(x, y, '!', libtcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item(use_function=heal, amount=7))
                 else:
-                    item=Entity(x, y, '#', libtcod.desaturated_yellow, 'Scroll of Dorkbolt', render_order=RenderOrder.ITEM, item=Item(use_function=dorkbolt, damage=27, maximum_range=11))
+                    item=Entity(x, y, '#', libtcod.yellow, 'Scroll of Dorkbolt', render_order=RenderOrder.ITEM, item=Item(use_function=dorkbolt, damage=27, maximum_range=11))
                 entities.append(item)

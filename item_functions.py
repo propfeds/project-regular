@@ -33,3 +33,17 @@ def dorkbolt(*args, **kwargs):
     else:
         results.append({'consumed': True, 'target': None, 'message': Message('A dorkbolt spawns from the veins of the earth and quickly dissipates.', libtcod.red)})
     return results
+
+def dorkblast(*args, **kwargs):
+    entities=kwargs.get('entities')
+    damage=kwargs.get('damage')
+    radius=kwargs.get('radius')
+    target_x=kwargs.get('target_x')
+    target_y=kwargs.get('target_y')
+    results=[]
+    results.append({'consumed': True, 'message': Message('A clump of dork dislodges from the ground!')})
+    for entity in entities:
+        if entity.distance_to(target_x, target_y)<=radius and entity.combatant:
+            results.append({'message': Message('The {0} takes {1} dmaage from the blast.'.format(entity.name, damage))})
+            results.extend(entity.combatant.take_damage(damage))
+    return results
