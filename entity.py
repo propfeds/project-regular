@@ -22,6 +22,10 @@ class Entity:
             self.combatant.owner=self
         if self.ai:
             self.ai.owner=self
+        if self.item:
+            self.item.owner=self
+        if self.inventory:
+            self.inventory.owner=self
 
     def move(self, dx, dy):
         self.x+=dx
