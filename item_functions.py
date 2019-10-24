@@ -1,5 +1,5 @@
 import tcod as libtcod
-
+from components.ai import ConfusedLad
 from game_messages import Message
 
 def heal(*args, **kwargs):
@@ -50,4 +50,26 @@ def dorkblast(*args, **kwargs):
         if entity.distance_to_point(target_x, target_y)<=radius and entity.combatant:
             results.append({'message': Message('The {0} takes {1} damage from the blast.'.format(entity.name, damage))})
             results.extend(entity.combatant.take_damage(damage))
+    return results
+
+def confusodockulus(*args, **kwargs):
+    entities=kwargs.get('entities')
+    fov_map=kwargs.get('fov_map')
+    target_x=kwargs.get('target_x')
+    target_y=kwargs.get('target_y')
+
+    results=[]
+
+    if not libtcod.map_is_in_fov(fov_map, target_x, target_y):
+        results.append({'consumed': False, 'message': Message('Confusodockulus whom beyond thine eyes?', libtcod.yellow)})
+        return results
+
+    for entity in entities:
+        if entity.x==target_x and entity.y==target_y and entity.ai:
+            entity.ai=ConfusedLad(entity.ai, 23)
+            entity.ai.owner=entity
+            results.append({'consumed': True, 'message': Message('The eyes of the {0} turn as hollow as a Kripto.'.format(entity.name), libtcod.light_green)})
+            break
+    else:
+        results.append({'consumed': False, 'message': Message('Confusodockulus whom within thine eyes?', libtcod.yellow)})
     return results

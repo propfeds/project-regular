@@ -28,17 +28,18 @@ class Inventory:
                 item_use_results=item_entity.item.use_function(self.owner, **kwargs)
                 for result in item_use_results:
                     if result.get('consumed'):
-                        self.remove_item(item_entity)
+                        try:
+                            self.contents.remove(item_entity)
+                        except ValueError:
+                            print('Cannot remove {0}'.format(item_entity))
+                            print('Current inventory contents are: {0}'.format(self.contents))
                 results.extend(item_use_results)
         return results
-
-    def remove_item(self, item):
-        self.contents.remove(item)
 
     def drop_item(self, item):
         results=[]
         item.x=self.owner.x
         item.y=self.owner.y
-        self.remove_item(item)
+        self.contents.remove(item)
         results.append({'item_dropped': item, 'message': Message('You drop the {0}.'.format(item.name), libtcod.lighter_blue)})
         return results

@@ -27,6 +27,11 @@ class Entity:
         if self.inventory:
             self.inventory.owner=self
 
+    def __str__(self):
+        if not self.item:
+            return 'This is not an item you\'re talking about.'
+        return str(self.item)
+
     def move(self, dx, dy):
         self.x+=dx
         self.y+=dy
