@@ -8,7 +8,7 @@ def heal(*args, **kwargs):
     results=[]
     amount=min(amount, entity.combatant.max_hp-entity.combatant.health)
     entity.combatant.take_damage(-amount)
-    results.append({'used':True, 'message': Message('Your wounds mend! You regain {0} hit points!'.format(amount), libtcod.lighter_blue)})
+    results.append({'consumed': True, 'message': Message('Your wounds mend! You regain {0} hit points!'.format(amount), libtcod.lighter_blue)})
     return results
 
 def dorkbolt(*args, **kwargs):

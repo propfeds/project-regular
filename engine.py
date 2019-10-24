@@ -121,6 +121,9 @@ def main():
                 target_x, target_y=left_click
                 item_use_results=player.inventory.use_item(targeting_item, entities=entities, fov_map=fov_map, target_x=target_x, target_y=target_y)
                 player_turn_results.extend(item_use_results)
+                for item_use_result in item_use_results:
+                    if item_use_result.get('consumed'):
+                        player_turn_results.append({'targeting_cancelled': True})
             elif right_click:
                 player_turn_results.append({'targeting_cancelled': True})
 
