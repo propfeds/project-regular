@@ -1,5 +1,5 @@
 #pylint: disable=no-member
-import tcod as libtcod
+import tcod
 from random import randint
 from game_messages import Message
 
@@ -7,7 +7,7 @@ class Brute:
     def take_turn(self, target, fov_map, game_map, entities):
         results=[]
         monster=self.owner
-        if libtcod.map_is_in_fov(fov_map, monster.x, monster.y):
+        if tcod.map_is_in_fov(fov_map, monster.x, monster.y):
             if monster.distance_to(target)>=2:
                 monster.move_astar(target, entities, game_map)
             elif target.combatant.health>0:
@@ -29,5 +29,5 @@ class ConfusedLad:
             self.nof_turns-=1
         else:
             self.owner.ai=self.prev_ai
-            results.append({'message': Message('The {0} regains self-control.'.format(self.owner.name), libtcod.red)})
+            results.append({'message': Message('The {0} regains self-control.'.format(self.owner.name), tcod.red)})
         return results

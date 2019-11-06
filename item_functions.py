@@ -1,4 +1,4 @@
-import tcod as libtcod
+import tcod
 from components.ai import ConfusedLad
 from game_messages import Message
 
@@ -8,7 +8,7 @@ def heal(*args, **kwargs):
     results=[]
     amount=min(amount, entity.combatant.max_hp-entity.combatant.health)
     entity.combatant.take_damage(-amount)
-    results.append({'consumed': True, 'message': Message('Your wounds mend! You regain {0} hit points!'.format(amount), libtcod.lighter_blue)})
+    results.append({'consumed': True, 'message': Message('Your wounds mend! You regain {0} hit points!'.format(amount), tcod.lighter_blue)})
     return results
 
 def dorkbolt(*args, **kwargs):
@@ -22,7 +22,7 @@ def dorkbolt(*args, **kwargs):
     target=None
     closest_distance=maximum_range+1
     for entity in entities:
-        if entity.combatant and entity!=caster and libtcod.map_is_in_fov(fov_map, entity.x, entity.y):
+        if entity.combatant and entity!=caster and tcod.map_is_in_fov(fov_map, entity.x, entity.y):
             distance=caster.distance_to(entity) # also chebyshev lol
             if distance<closest_distance:
                 target=entity
@@ -31,7 +31,7 @@ def dorkbolt(*args, **kwargs):
         results.append({'consumed': True, 'target': target, 'message': Message('A dorkbolt spawns from the veins of the earth and strikes the {0} for {1} damage!'.format(target.name, damage))})
         results.extend(target.combatant.take_damage(damage))
     else:
-        results.append({'consumed': True, 'target': None, 'message': Message('A dorkbolt spawns from the veins of the earth and quickly dissipates.', libtcod.red)})
+        results.append({'consumed': True, 'target': None, 'message': Message('A dorkbolt spawns from the veins of the earth and quickly dissipates.', tcod.red)})
     return results
 
 def dorkblast(*args, **kwargs):
@@ -42,8 +42,8 @@ def dorkblast(*args, **kwargs):
     target_x=kwargs.get('target_x')
     target_y=kwargs.get('target_y')
     results=[]
-    if not libtcod.map_is_in_fov(fov_map, target_x, target_y):
-        results.append({'consumed': False, 'message': Message('You can\'t see where you\'re firing!', libtcod.yellow)})
+    if not tcod.map_is_in_fov(fov_map, target_x, target_y):
+        results.append({'consumed': False, 'message': Message('You can\'t see where you\'re firing!', tcod.yellow)})
         return results
     results.append({'consumed': True, 'message': Message('A clump of dork dislodges from the ground!')})
     for entity in entities:
@@ -60,16 +60,16 @@ def confusodockulus(*args, **kwargs):
 
     results=[]
 
-    if not libtcod.map_is_in_fov(fov_map, target_x, target_y):
-        results.append({'consumed': False, 'message': Message('Confusodockulus whom beyond thine eyes?', libtcod.yellow)})
+    if not tcod.map_is_in_fov(fov_map, target_x, target_y):
+        results.append({'consumed': False, 'message': Message('Confusodockulus whom beyond thine eyes?', tcod.yellow)})
         return results
 
     for entity in entities:
         if entity.x==target_x and entity.y==target_y and entity.ai:
             entity.ai=ConfusedLad(entity.ai, 23)
             entity.ai.owner=entity
-            results.append({'consumed': True, 'message': Message('The eyes of the {0} turn as hollow as a Kripto.'.format(entity.name), libtcod.light_green)})
+            results.append({'consumed': True, 'message': Message('The eyes of the {0} turn as hollow as a Kripto.'.format(entity.name), tcod.light_green)})
             break
     else:
-        results.append({'consumed': False, 'message': Message('Confusodockulus whom within thine eyes?', libtcod.yellow)})
+        results.append({'consumed': False, 'message': Message('Confusodockulus whom within thine eyes?', tcod.yellow)})
     return results

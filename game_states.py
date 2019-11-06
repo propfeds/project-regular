@@ -7,3 +7,5 @@ class GameStates(Enum):
     TARGETING=4
     INVENTORY=5
     DROP_INVENTORY=6
+    LEVEL_UP=7
+    MIRROR=8

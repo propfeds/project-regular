@@ -1,4 +1,4 @@
-import tcod as libtcod
+import tcod
 from input_handlers import handle_keys, handle_mouse, handle_main_menu
 from game_states import GameStates
 from entity import get_blocking_entities
@@ -18,30 +18,34 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
     fov_recompute=True
     fov_map=init_fov(game_map)
     # Any menu will return to the previous game state
-    key=libtcod.Key()
-    mouse=libtcod.Mouse()
+    key=tcod.Key()
+    mouse=tcod.Mouse()
 
     prev_game_state=game_state
     targeting_item=None
 
-    while not libtcod.console_is_window_closed():
-        libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS | libtcod.EVENT_MOUSE, key, mouse)
+    while not tcod.console_is_window_closed():
+        tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS | tcod.EVENT_MOUSE, key, mouse)
         if fov_recompute:
             recompute_fov(fov_map, player.x, player.y, constants['fov_radius'], constants['fov_light_walls'], constants['fov_algorithm'])
         # This is the render_all just below so I won't have to look for it again
         render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, message_log, constants['screen_width'], constants['screen_height'], constants['bar_width'], constants['panel_height'], mouse, constants['colours'], game_state)
         fov_recompute=False
-        libtcod.console_flush()
+        tcod.console_flush()
         clear_all(con, entities)
 
         action=handle_keys(key, game_state)
         mouse_action=handle_mouse(mouse)
 
         move=action.get('move')
+        wait=action.get('wait')
         pickup=action.get('pickup')
         take_inventory=action.get('take_inventory')
         drop_inventory=action.get('drop_inventory')
         inventory_index=action.get('inventory_index')
+        take_stairs=action.get('take_stairs')
+        level_up=action.get('level_up')
+        mirror=action.get('mirror')
         exit=action.get('exit')
         fullscreen=action.get('fullscreen')
         
@@ -59,13 +63,17 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
                     player.move(dx, dy)
                     fov_recompute=True
                 game_state=GameStates.ENEMY_TURN
+
+        elif wait:
+            game_state=GameStates.ENEMY_TURN
+
         elif pickup and game_state==GameStates.PLAYER_TURN:
             for entity in entities:
                 if entity.item and entity.x==player.x and entity.y==player.y:
                     player_turn_results.extend(player.inventory.add_item(entity))
                     break
             else:
-                message_log.add_message(Message('You grab the ground for no reason.', libtcod.yellow))
+                message_log.add_message(Message('You grab the ground for no reason.', tcod.yellow))
 
         if take_inventory:
             prev_game_state=game_state
@@ -82,6 +90,32 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
             elif game_state==GameStates.DROP_INVENTORY:
                 player_turn_results.extend(player.inventory.drop_item(item))
 
+        if take_stairs and game_state==GameStates.PLAYER_TURN:
+            for entity in entities:
+                if entity.stairs and entity.x==player.x and entity.y==player.y:
+                    entities=game_map.next_floor(player, message_log, constants)
+                    fov_map=init_fov(game_map)
+                    fov_recompute=True
+                    tcod.console_clear(con)
+                    break
+            else:
+                message_log.add_message(Message('Dive what?', tcod.yellow))
+
+        if level_up:
+            if level_up=='hp':
+                player.combatant.max_hp+=20
+                player.combatant.health+=20
+            elif level_up=='atk':
+                player.combatant.attack+=1
+            elif level_up=='ac':
+                player.combatant.ac+=1
+
+            game_state=prev_game_state
+
+        if mirror:
+            prev_game_state=game_state
+            game_state=GameStates.MIRROR
+
         if game_state==GameStates.TARGETING:
             if left_click:
                 target_x, target_y=left_click
@@ -94,7 +128,7 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
                 player_turn_results.append({'targeting_cancelled': True})
 
         if exit:
-            if game_state in (GameStates.INVENTORY, GameStates.DROP_INVENTORY):
+            if game_state in (GameStates.INVENTORY, GameStates.DROP_INVENTORY, GameStates.MIRROR):
                 game_state=prev_game_state
             elif game_state==GameStates.TARGETING:
                 player_turn_results.append({'targeting_cancelled': True})
@@ -102,7 +136,7 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
                 save_game(player, entities, game_map, message_log, game_state)
                 return True
         if fullscreen:
-            libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
+            tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
 
         for announcement in player_turn_results:
             message=announcement.get('message')
@@ -112,6 +146,7 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
             item_dropped=announcement.get('item_dropped')
             targeting=announcement.get('targeting')
             targeting_cancelled=announcement.get('targeting_cancelled')
+            xp=announcement.get('xp')
             if message:
                 message_log.add_message(message)
             if dead:
@@ -136,6 +171,13 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
             if targeting_cancelled:
                 game_state=prev_game_state
                 message_log.add_message(Message('Targeting cancelled.'))
+            if xp:
+                leveled_up=player.level.add_xp(xp)
+                message_log.add_message(Message('+{0} xp.'.format(xp)))
+                if leveled_up:
+                    message_log.add_message(Message('You strong. To level {0}!'.format(player.level.current_level), tcod.yellow))
+                    prev_game_state=game_state
+                    game_state=GameStates.LEVEL_UP
 
         if game_state==GameStates.ENEMY_TURN:
             for entity in entities:
@@ -162,10 +204,10 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
 def main():
     constants=get_constants()
 
-    libtcod.console_set_custom_font('consolas12x12_gs_tc.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-    libtcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
-    con=libtcod.console_new(constants['screen_width'], constants['screen_height'])
-    panel=libtcod.console_new(constants['screen_width'], constants['screen_height']-constants['panel_height'])
+    tcod.console_set_custom_font('consolas12x12_gs_tc.png', tcod.FONT_TYPE_GREYSCALE | tcod.FONT_LAYOUT_TCOD)
+    tcod.console_init_root(constants['screen_width'], constants['screen_height'], constants['window_title'], False)
+    con=tcod.console_new(constants['screen_width'], constants['screen_height'])
+    panel=tcod.console_new(constants['screen_width'], constants['screen_height']-constants['panel_height'])
 
     player=None
     entities=[]
@@ -174,18 +216,18 @@ def main():
     game_state=None
     show_main_menu=True
     show_load_error_message=False
-    main_menu_background_image=libtcod.image_load('menu_background.png')
+    main_menu_background_image=tcod.image_load('menu_background.png')
 
-    key=libtcod.Key()
-    mouse=libtcod.Mouse()
+    key=tcod.Key()
+    mouse=tcod.Mouse()
 
-    while not libtcod.console_is_window_closed():
-        libtcod.sys_check_for_event(libtcod.EVENT_KEY_PRESS|libtcod.EVENT_MOUSE, key, mouse)
+    while not tcod.console_is_window_closed():
+        tcod.sys_check_for_event(tcod.EVENT_KEY_PRESS|tcod.EVENT_MOUSE, key, mouse)
         if show_main_menu:
             main_menu(con, main_menu_background_image, constants['screen_width'], constants['screen_height'])
             if show_load_error_message:
                 menu(con, 'Save game unfound', [], 50, constants['screen_width'], constants['screen_height'])
-            libtcod.console_flush()
+            tcod.console_flush()
 
             action=handle_main_menu(key)
             new_game=action.get('new_game')
@@ -206,7 +248,7 @@ def main():
             elif exit_game:
                 break
         else:
-            libtcod.console_clear(con)
+            tcod.console_clear(con)
             start_game(player, entities, game_map, message_log, game_state, con, panel, constants)
 
             show_main_menu=True
