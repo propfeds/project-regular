@@ -1,5 +1,6 @@
 import tcod
 from random import randint
+from random_utils import random_choice_from_dict, from_dungeon_level
 from entity import Entity
 from map_objects.tile import Tile
 from map_objects.rect import Rect
@@ -22,7 +23,7 @@ class GameMap:
         # True: walls!
         tiles=[[Tile(True) for y in range(self.height)] for x in range(self.width)]
         return tiles
-    def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities, max_monsters_per_room, max_items_per_room):
+    def make_map(self, max_rooms, room_min_size, room_max_size, map_width, map_height, player, entities,):
         rooms=[]
         num_rooms=0
 
@@ -58,7 +59,7 @@ class GameMap:
                         self.carve_tunnel_y(prev_y, new_y, prev_x)
                         self.carve_tunnel_x(prev_x, new_x, new_y)
             
-                self.spawn_entities(new_room, entities, max_monsters_per_room, max_items_per_room)
+                self.spawn_entities(new_room, entities)
                 rooms.append(new_room)
                 num_rooms+=1
         stairs_x, stairs_y=last_room_c
@@ -81,34 +82,46 @@ class GameMap:
             return True
         return False
 
-    def spawn_entities(self, room, entities, max_monsters_per_room, max_items_per_room):
+    def spawn_entities(self, room, entities):
         # spawning some baddies
+        max_monsters_per_room=from_dungeon_level([(2, 1), (3, 4), (5, 6)], self.depth)
         number_of_monsters=randint(0, max_monsters_per_room)
+        monster_chances={
+            'man': 72,
+            'orckh': from_dungeon_level([(15, 3), (30, 5), (60, 7)], self.depth)
+        }
         for _ in range(number_of_monsters):
             x=randint(room.x1+1, room.x2-1)
             y=randint(room.y1+1, room.y2-1)
             if not any([entity for entity in entities if entity.x==x and entity.y==y]):
-                # Ninety percent to spawn a white european, ten percent to spawn a green orck
-                if randint(0, 100)<90:
-                    monster=Entity(x, y, 'm', tcod.white, 'Man', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=15, stamina=40, attack=3, ac=1, xp=100), ai=Brute())
+                monster_choice=random_choice_from_dict(monster_chances)
+                if monster_choice=='man':
+                    monster=Entity(x, y, 'm', tcod.white, 'Man', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=15, stamina=40, attack=4, ac=1, xp=100), ai=Brute())
                 else:
                     monster=Entity(x, y, 'o', tcod.desaturated_green, 'Orckh', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=50, stamina=50, attack=7, ac=2, xp=150), ai=Brute())
                 entities.append(monster)
         # spawning some items
+        max_items_per_room=from_dungeon_level([(1, 1), (2, 4)], self.depth)
         number_of_items=randint(0, max_items_per_room)
+        item_chances={
+            'pot_juju': 24,
+            'scroll_confuse': from_dungeon_level([(24, 4)], self.depth),
+            'scroll_dorkbolt': from_dungeon_level([(32, 2)], self.depth),
+            'scroll_dorkblast': from_dungeon_level([(16, 5)], self.depth)
+        }
         for _ in range(number_of_items):
             x=randint(room.x1+1, room.x2-1)
             y=randint(room.y1+1, room.y2-1)
             if not any([entity for entity in entities if entity.x==x and entity.y==y]):
-                item_roll=randint(0, 99)
-                if item_roll<20:
+                item_choice=random_choice_from_dict(item_chances)
+                if item_choice=='scroll_confuse':
                     item=Entity(x, y, '#', tcod.light_pink, 'Scroll of Confusodockulus', render_order=RenderOrder.ITEM, item=Item(use_function=confusodockulus, targeting=True, targeting_message=Message('Left-click an enemy to confuse it, or right-click to cancel.', tcod.light_cyan)))
-                elif item_roll<44:
-                    item=Entity(x, y, '!', tcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item(use_function=heal, amount=7))
-                elif item_roll<72:
-                    item=Entity(x, y, '#', tcod.yellow, 'Scroll of Dorkbolt', render_order=RenderOrder.ITEM, item=Item(use_function=dorkbolt, damage=27, maximum_range=11))
+                elif item_choice=='pot_juju':
+                    item=Entity(x, y, '!', tcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item(use_function=heal, amount=6))
+                elif item_choice=='scroll_dorkbolt':
+                    item=Entity(x, y, '#', tcod.yellow, 'Scroll of Dorkbolt', render_order=RenderOrder.ITEM, item=Item(use_function=dorkbolt, damage=23, maximum_range=11))
                 else:
-                    item=Entity(x, y, '#', tcod.orange, 'Scroll of Dorkblast', render_order=RenderOrder.ITEM, item=Item(use_function=dorkblast, targeting=True, targeting_message=Message('Use your mouse to fire because facepalm.', tcod.lighter_blue), damage=21, radius=2))
+                    item=Entity(x, y, '#', tcod.orange, 'Scroll of Dorkblast', render_order=RenderOrder.ITEM, item=Item(use_function=dorkblast, targeting=True, targeting_message=Message('Use your mouse to fire because facepalm.', tcod.lighter_blue), damage=17, radius=2))
                 entities.append(item)
 
     def next_floor(self, player, message_log, constants):
@@ -116,7 +129,7 @@ class GameMap:
         entities=[player]
 
         self.tiles=self.init_tiles()
-        self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities, constants['max_monsters_per_room'], constants['max_items_per_room'])
+        self.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
 
         player.combatant.take_damage(-player.combatant.health//2)
         message_log.add_message(Message('You feed on the ground.', tcod.light_violet))

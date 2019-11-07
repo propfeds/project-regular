@@ -26,8 +26,6 @@ def get_constants():
         'fov_algorithm': 0,
         'fov_light_walls': True,
         'fov_radius': 7,
-        'max_monsters_per_room': 3,
-        'max_items_per_room': 2,
         'colours':
         {
             'dark_wall': tcod.Color(75, 105, 47),
@@ -39,11 +37,11 @@ def get_constants():
     return constants
 
 def get_game_vars(constants):
-    player=Entity(0, 0, '@', tcod.yellow, 'Ratiel Snailface the Snek Oil Snekman (Player Character)', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=8, ac=6), item=None, inventory=Inventory(26), level=Level())
+    player=Entity(0, 0, '@', tcod.yellow, 'Ratiel Snailface the Snek Oil Snekman (Player Character)', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=8, ac=3), item=None, inventory=Inventory(26), level=Level())
     entities=[player]
 
     game_map=GameMap(constants['map_width'], constants['map_height'])
-    game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities, constants['max_monsters_per_room'], constants['max_items_per_room'])
+    game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)
 
     message_log=MessageLog(constants['message_x'], constants['message_width'], constants['message_height'])
     
