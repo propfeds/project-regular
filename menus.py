@@ -20,11 +20,11 @@ def menu(con, header, options, width, screen_width, screen_height):
     y=int(screen_height/2-height/2)
     tcod.console_blit(window, 0, 0, width, height, 0, x, y, 1, 0.7)
 
-def inventory_menu(con, header, inventory, inventory_width, screen_width, screen_height):
-    if len(inventory.contents)==0:
-        options=['Your inventory is empty.']
+def inventory_menu(con, header, player, inventory_width, screen_width, screen_height):
+    if len(player.inventory.contents)==0:
+        options=['More weight is required.']
     else:
-        options=[item.name for item in inventory.contents]
+        options=[('{0} ({1})'.format(item.name, item.equippable.slot.name) if (item==player.equipment.main_hand or item==player.equipment.off_hand or item==player.equipment.finger) else item.name) for item in player.inventory.contents]
     menu(con, header, options, inventory_width, screen_width, screen_height)
 
 def main_menu(con, bg_image, screen_width, screen_height):
@@ -36,7 +36,7 @@ def main_menu(con, bg_image, screen_width, screen_height):
     menu(con, '', ['New Game', 'Load Game', 'Bye Mates'], 24, screen_width, screen_height)
 
 def level_up_menu(con, header, player, menu_width, screen_width, screen_height):
-    options=['Helth (+13 HP)', 'Stremf (+1 Attack)', 'Doge (+1 AC)']
+    options=['Helth (+13 HP)', 'Stremf (+2 Attack)', 'Doge (+1 AC)']
 
     menu(con, header, options, menu_width, screen_width, screen_height)
 

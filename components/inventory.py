@@ -19,7 +19,10 @@ class Inventory:
     def use_item(self, item_entity, **kwargs):
         results=[]
         if item_entity.item.use_function is None:
-            results.append({'message': Message('You don\'t see a way to use the {0}.'.format(item_entity.name), tcod.yellow)})
+            if item_entity.equippable:
+                results.append({'equip': item_entity})
+            else:
+                results.append({'message': Message('You don\'t see a way to use the {0}.'.format(item_entity.name), tcod.yellow)})
         else:
             if item_entity.item.targeting and not (kwargs.get('target_x') or kwargs.get('target_y')):
                 results.append({'targeting': item_entity})
@@ -38,6 +41,8 @@ class Inventory:
 
     def drop_item(self, item):
         results=[]
+        if item==self.owner.equipment.main_hand or item==self.owner.equipment.off_hand or item==self.owner.equipment.finger:
+            self.owner.equipment.toggle_equip(item)
         item.x=self.owner.x
         item.y=self.owner.y
         self.contents.remove(item)

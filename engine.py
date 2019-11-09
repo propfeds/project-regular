@@ -103,12 +103,12 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
 
         if level_up:
             if level_up=='hp':
-                player.combatant.max_hp+=20
-                player.combatant.health+=20
+                player.combatant.base_max_hp+=13
+                player.combatant.health+=13
             elif level_up=='atk':
-                player.combatant.attack+=1
+                player.combatant.base_attack+=2
             elif level_up=='ac':
-                player.combatant.ac+=1
+                player.combatant.base_ac+=1
 
             game_state=prev_game_state
 
@@ -144,6 +144,7 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
             item_added=announcement.get('item_added')
             item_consumed=announcement.get('item_consumed')
             item_dropped=announcement.get('item_dropped')
+            equip=announcement.get('equip')
             targeting=announcement.get('targeting')
             targeting_cancelled=announcement.get('targeting_cancelled')
             xp=announcement.get('xp')
@@ -162,6 +163,16 @@ def start_game(player, entities, game_map, message_log, game_state, con, panel, 
                 game_state=GameStates.ENEMY_TURN
             if item_dropped:
                 entities.append(item_dropped)
+                game_state=GameStates.ENEMY_TURN
+            if equip:
+                equip_results=player.equipment.toggle_equip(equip)
+                for equip_result in equip_results:
+                    equipped=equip_result.get('equipped')
+                    dequipped=equip_result.get('dequipped')
+                    if equipped:
+                        message_log.add_message(Message('You equipped the {0}'.format(equipped.name)))
+                    if dequipped:
+                        message_log.add_message(Message('You dequipped the {0}'.format(dequipped.name)))
                 game_state=GameStates.ENEMY_TURN
             if targeting:
                 prev_game_state=GameStates.PLAYER_TURN

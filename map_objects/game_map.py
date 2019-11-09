@@ -8,6 +8,8 @@ from components.ai import Brute
 from components.combatant import Combatant
 from components.item import Item
 from components.stairs import Stairs
+from components.equipment import EquipmentSlots
+from components.equippable import Equippable
 from render_functions import RenderOrder
 from item_functions import heal, dorkbolt, dorkblast, confusodockulus
 from game_messages import Message
@@ -107,7 +109,10 @@ class GameMap:
             'pot_juju': 24,
             'scroll_confuse': from_dungeon_level([(24, 4)], self.depth),
             'scroll_dorkbolt': from_dungeon_level([(32, 2)], self.depth),
-            'scroll_dorkblast': from_dungeon_level([(16, 5)], self.depth)
+            'scroll_dorkblast': from_dungeon_level([(16, 5)], self.depth),
+            'axe': from_dungeon_level([(15, 1)], self.depth),
+            'shield': from_dungeon_level([(12, 1)], self.depth),
+            'ring': from_dungeon_level([(3, 1)], self.depth)
         }
         for _ in range(number_of_items):
             x=randint(room.x1+1, room.x2-1)
@@ -120,8 +125,14 @@ class GameMap:
                     item=Entity(x, y, '!', tcod.violet, 'Rejujuvenation Potion', render_order=RenderOrder.ITEM, item=Item(use_function=heal, amount=6))
                 elif item_choice=='scroll_dorkbolt':
                     item=Entity(x, y, '#', tcod.yellow, 'Scroll of Dorkbolt', render_order=RenderOrder.ITEM, item=Item(use_function=dorkbolt, damage=23, maximum_range=11))
-                else:
+                elif item_choice=='scroll_dorkblast':
                     item=Entity(x, y, '#', tcod.orange, 'Scroll of Dorkblast', render_order=RenderOrder.ITEM, item=Item(use_function=dorkblast, targeting=True, targeting_message=Message('Use your mouse to fire because facepalm.', tcod.lighter_blue), damage=17, radius=2))
+                elif item_choice=='axe':
+                    item=Entity(x, y, '/', tcod.sky, 'Scale Axe +{0}'.format(self.depth), render_order=RenderOrder.ITEM, equippable=Equippable(EquipmentSlots.MAIN_HAND, bonus_attack=1+self.depth*2))
+                elif item_choice=='shield':
+                    item=Entity(x, y, '[', tcod.darker_orange, 'Scale Shield +{0}'.format(self.depth), render_order=RenderOrder.ITEM, equippable=Equippable(EquipmentSlots.OFF_HAND, bonus_ac=-1+self.depth))
+                elif item_choice=='ring':
+                    item=Entity(x, y, '=', tcod.amber, 'Ring of Bonding +{0}'.format(self.depth), render_order=RenderOrder.ITEM, equippable=Equippable(EquipmentSlots.FINGER, bonus_max_hp=7+self.depth*13))
                 entities.append(item)
 
     def next_floor(self, player, message_log, constants):

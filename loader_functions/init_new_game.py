@@ -1,6 +1,9 @@
 import tcod
 from components.combatant import Combatant
 from components.inventory import Inventory
+from components.equipment import Equipment
+from components.equippable import Equippable
+from equipment_slots import EquipmentSlots
 from components.level import Level
 from entity import Entity
 from game_messages import MessageLog
@@ -37,8 +40,12 @@ def get_constants():
     return constants
 
 def get_game_vars(constants):
-    player=Entity(0, 0, '@', tcod.yellow, 'Ratiel Snailface the Snek Oil Snekman (Player Character)', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=8, ac=3), item=None, inventory=Inventory(26), level=Level())
+    player=Entity(0, 0, '@', tcod.yellow, 'Ratiel Snailface the Snek Oil Snekman (Player Character)', block_movement=True, render_order=RenderOrder.ACTOR, combatant=Combatant(health=24, stamina=60, attack=3, ac=3), item=None, inventory=Inventory(26), level=Level(), equipment=Equipment())
     entities=[player]
+
+    dagger=Entity(0, 0, '!', tcod.sky, 'Ceremonial Dagger', render_order=RenderOrder.ITEM, equippable=Equippable(EquipmentSlots.MAIN_HAND, bonus_attack=2))
+    player.inventory.add_item(dagger)
+    player.equipment.toggle_equip(dagger)
 
     game_map=GameMap(constants['map_width'], constants['map_height'])
     game_map.make_map(constants['max_rooms'], constants['room_min_size'], constants['room_max_size'], constants['map_width'], constants['map_height'], player, entities)

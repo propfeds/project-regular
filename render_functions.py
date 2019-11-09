@@ -67,7 +67,7 @@ def render_all(con, panel, entities, player, game_map, fov_map, fov_recompute, m
             title='Taking Inventory: Press Escape to escape.\n'
         else:
             title='Dropping Inventory: Press Escape to escape.\n'
-        inventory_menu(con, title, player.inventory, 50, screen_width, screen_height)
+        inventory_menu(con, title, player, 50, screen_width, screen_height)
 
     elif game_state==GameStates.LEVEL_UP:
         level_up_menu(con, 'Level up! Power you:', player, 40, screen_width, screen_height)
